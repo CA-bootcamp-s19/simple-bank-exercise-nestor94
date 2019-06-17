@@ -24,6 +24,15 @@ contract SimpleBank {
     //
     // Events - publicize actions to external listeners
     //
+
+    //
+    // Modifiers - enables to check some requirements before execute some tasks 
+    //
+
+    modifier isEnrolled(){
+        require(enrolled[msg.sender], "Sender must be enrolled!");
+        _;
+    }
     
     /* Add an argument for this event, an accountAddress */
     event LogEnrolled(address accountAddress);
@@ -78,10 +87,9 @@ contract SimpleBank {
     // Use the appropriate global variables to get the transaction sender and value
     // Emit the appropriate event    
     // Users should be enrolled before they can make deposits
-    function deposit() public payable returns (uint) {
+    function deposit() public payable isEnrolled returns (uint) {
         /* Add the amount to the user's balance, call the event associated with a deposit,
           then return the balance of the user */
-          require(enrolled[msg.sender], "Sender must be enrolled!");
           balances[msg.sender] += msg.value;
           emit LogDepositMade(msg.sender, msg.value);
           return balances[msg.sender];
@@ -97,7 +105,6 @@ contract SimpleBank {
            Subtract the amount from the sender's balance, and try to send that amount of ether
            to the user attempting to withdraw. 
            return the user's balance.*/
-           require(enrolled[msg.sender], "Sender must be enrolled!");
            require(withdrawAmount <= getBalance(), "Withdraw value should be as much as the current balance");
            msg.sender.transfer(withdrawAmount);
            balances[msg.sender] -= withdrawAmount;
